@@ -1,50 +1,81 @@
 ﻿using RPSGame;
 using System.Security.Cryptography;
+using Spectre.Console;
 
 class Program
 {
     static void Main(string[] args)
     {
-        RockPaperScissorsGame.Run();
+        RockPaperScissorsGame.Run(args);
     }
 
     class RockPaperScissorsGame
     {
-        public static void Run()
+        public static void Run(string[] args)
         {
-            string[] moves = { "Rock", "Paper", "Scissors", "Spock", "Lizard" };
+            static bool AreAllDistinct(string[] array)
+            {
+                var set = new HashSet<string>();
+                foreach (var item in array)
+                {
+                    if (!set.Add(item))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
 
+            static byte[] GenerateRandomKey()
+            {
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    byte[] key = new byte[32];
+                    rng.GetBytes(key);
+                    return key;
+                }
+            }
+
+            if (args.Length < 3 || args.Length % 2 == 0 || !AreAllDistinct(args))
+            {
+                AnsiConsole.MarkupLine("Invalid input. Please provide an odd number >= 3 of non-repeating strings.");
+                AnsiConsole.MarkupLine("Example: dotnet run Rock Paper Scissors Lizard Spock");
+                return;
+            }
+
+            int numberOfMoves = args.Length;
+
+            string[] moves = args;
             var randomKey = GenerateRandomKey();
             var hmacKey = new HMACKey(randomKey);
             var moveGenerator = new MoveGenerator(moves, hmacKey);
             var rules = new GameRules(moves);
             var helpTable = new HelpTable(moves, rules);
 
-            Console.WriteLine("Generated HMAC key: " + BitConverter.ToString(randomKey).Replace("-", ""));
-            Console.WriteLine("Your moves:");
-            for (int i = 0; i < moves.Length; i++)
+            AnsiConsole.MarkupLine("Generated HMAC key: " + BitConverter.ToString(randomKey).Replace("-", ""));
+            AnsiConsole.MarkupLine("Your moves:");
+            for (int i = 0; i < numberOfMoves; i++)
             {
-                Console.WriteLine($"{i + 1} - {moves[i]}");
+                AnsiConsole.MarkupLine($"{i + 1} - {moves[i]}");
             }
 
             while (true)
             {
-                Console.WriteLine("\nSelect your move:");
-                for (int i = 0; i < moves.Length; i++)
+                AnsiConsole.MarkupLine("\nSelect your move:");
+                for (int i = 0; i < numberOfMoves; i++)
                 {
-                    Console.WriteLine($"{i + 1} - {moves[i]}");
+                    AnsiConsole.MarkupLine($"{i + 1} - {moves[i]}");
                 }
-                Console.WriteLine("0 - Exit");
+                AnsiConsole.MarkupLine("0 - Exit");
 
                 int userChoice;
-                while (!int.TryParse(Console.ReadLine(), out userChoice) || userChoice < 0 || userChoice > moves.Length)
+                while (!int.TryParse(Console.ReadLine(), out userChoice) || userChoice < 0 || userChoice > numberOfMoves)
                 {
-                    Console.WriteLine("Invalid choice. Please select a valid move.");
+                    AnsiConsole.MarkupLine("Invalid choice. Please select a valid move.");
                 }
 
                 if (userChoice == 0)
                 {
-                    Console.WriteLine("Thanks for playing!");
                     break;
                 }
 
@@ -52,35 +83,12 @@ class Program
                 var computerMove = moveGenerator.GenerateMove();
                 var result = rules.DetermineWinner(userMove, computerMove);
 
-                Console.WriteLine($"Your move: {userMove}");
-                Console.WriteLine($"Computer's move: {computerMove}");
-                Console.WriteLine($"Result: {result}");
-                Console.WriteLine($"HMAC: {moveGenerator.GetHMAC(userMove)}");
+                AnsiConsole.MarkupLine($"Your move: {userMove}");
+                AnsiConsole.MarkupLine($"Computer's move: {computerMove}");
+                AnsiConsole.MarkupLine($"Result: {result}");
+                AnsiConsole.MarkupLine($"HMAC: {moveGenerator.GetHMAC(userMove)}");
 
                 helpTable.Display();
-            }
-        }
-
-        private static bool AreAllDistinct(string[] array)
-        {
-            var set = new HashSet<string>();
-            foreach (var item in array)
-            {
-                if (!set.Add(item))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static byte[] GenerateRandomKey()
-        {
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                byte[] key = new byte[32]; // 256 bits
-                rng.GetBytes(key);
-                return key;
             }
         }
     }
