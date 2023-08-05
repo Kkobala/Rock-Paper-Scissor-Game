@@ -38,8 +38,8 @@ class Program
 
             if (args.Length < 3 || args.Length % 2 == 0 || !AreAllDistinct(args))
             {
-                AnsiConsole.MarkupLine("Invalid input. Please provide an odd number >= 3 of non-repeating strings.");
-                AnsiConsole.MarkupLine("Example: dotnet run Rock Paper Scissors Lizard Spock");
+                Console.WriteLine("Invalid input. Please provide an odd number >= 3 of non-repeating strings.");
+                Console.WriteLine("Example: dotnet run Rock Paper Scissors Lizard Spock");
                 return;
             }
 
@@ -52,26 +52,32 @@ class Program
             var rules = new GameRules(moves);
             var helpTable = new HelpTable(moves, rules);
 
-            AnsiConsole.MarkupLine("Generated HMAC key: " + BitConverter.ToString(randomKey).Replace("-", ""));
-            AnsiConsole.MarkupLine("Your moves:");
+            Console.WriteLine("Generated HMAC key: " + BitConverter.ToString(randomKey).Replace("-", ""));
+            Console.WriteLine("Your moves:");
             for (int i = 0; i < numberOfMoves; i++)
             {
-                AnsiConsole.MarkupLine($"{i + 1} - {moves[i]}");
+                Console.WriteLine($"{i + 1} - {moves[i]}");
             }
+
+            var table = new Table();
+            table.AddColumn("User Move");
+            table.AddColumn("Computer Move");
+            table.AddColumn("Result");
+            table.AddColumn("HMAC");
 
             while (true)
             {
-                AnsiConsole.MarkupLine("\nSelect your move:");
+                Console.WriteLine("\nSelect your move:");
                 for (int i = 0; i < numberOfMoves; i++)
                 {
-                    AnsiConsole.MarkupLine($"{i + 1} - {moves[i]}");
+                    Console.WriteLine($"{i + 1} - {moves[i]}");
                 }
-                AnsiConsole.MarkupLine("0 - Exit");
+                Console.WriteLine("0 - Exit");
 
                 int userChoice;
                 while (!int.TryParse(Console.ReadLine(), out userChoice) || userChoice < 0 || userChoice > numberOfMoves)
                 {
-                    AnsiConsole.MarkupLine("Invalid choice. Please select a valid move.");
+                    Console.WriteLine("Invalid choice. Please select a valid move.");
                 }
 
                 if (userChoice == 0)
@@ -83,10 +89,16 @@ class Program
                 var computerMove = moveGenerator.GenerateMove();
                 var result = rules.DetermineWinner(userMove, computerMove);
 
-                AnsiConsole.MarkupLine($"Your move: {userMove}");
-                AnsiConsole.MarkupLine($"Computer's move: {computerMove}");
-                AnsiConsole.MarkupLine($"Result: {result}");
-                AnsiConsole.MarkupLine($"HMAC: {moveGenerator.GetHMAC(userMove)}");
+                Console.WriteLine($"Your move: {userMove}");
+                Console.WriteLine($"Computer's move: {computerMove}");
+                Console.WriteLine($"Result: {result}");
+                Console.WriteLine($"HMAC: {moveGenerator.GetHMAC(userMove)}");
+
+                table.Rows.Clear();
+
+                table.AddRow(userMove, computerMove, result, moveGenerator.GetHMAC(userMove));
+
+                AnsiConsole.Render(table);
 
                 helpTable.Display();
             }

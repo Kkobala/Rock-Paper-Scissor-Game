@@ -1,52 +1,67 @@
-﻿namespace RPSGame
+﻿using RPSGame;
+
+class HelpTable
 {
-    class HelpTable
+    private readonly string[] _moves;
+    private readonly GameRules _rules;
+
+    public HelpTable(string[] moves, GameRules rules)
     {
-        private readonly string[] _moves;
-        private readonly GameRules _rules;
+        _moves = moves;
+        _rules = rules;
+    }
 
-        public HelpTable(string[] moves, GameRules rules)
+    public void Display()
+    {
+        Console.WriteLine("\nHelp Table:");
+
+        Console.Write("+-------------+");
+        foreach (var move in _moves)
         {
-            _moves = moves;
-            _rules = rules;
+            Console.Write($" {move,-7} +");
         }
+        Console.WriteLine();
 
-        public void Display()
+        Console.Write("+-------------+");
+        foreach (var move in _moves)
         {
-            Console.WriteLine("\nHelp Table:");
-            Console.Write("  ");
-            foreach (var move in _moves)
+            Console.Write("-------+");
+        }
+        Console.WriteLine();
+
+        foreach (var move1 in _moves)
+        {
+            Console.Write($"| {move1,-12}|");
+            foreach (var move2 in _moves)
             {
-                Console.Write($"  {move}");
+                var result = GetResultSymbol(move1, move2);
+                Console.Write($" {result,-5} |");
             }
             Console.WriteLine();
 
-            foreach (var move1 in _moves)
+            Console.Write("+-------------+");
+            foreach (var move in _moves)
             {
-                Console.Write($"{move1} ");
-                foreach (var move2 in _moves)
-                {
-                    var result = GetResultSymbol(move1, move2);
-                    Console.Write($"  {result}");
-                }
-                Console.WriteLine();
+                Console.Write("-------+");
             }
+            Console.WriteLine();
         }
+    }
 
-        private string GetResultSymbol(string move1, string move2)
+    private string GetResultSymbol(string move1, string move2)
+    {
+        if (move1 == move2)
         {
-            if (move1 == move2)
-            {
-                return "Draw";
-            }
-            else if (_rules.DetermineWinner(move1, move2) == "You Win!")
-            {
-                return "Win";
-            }
-            else
-            {
-                return "Lose";
-            }
+            return "Draw";
+        }
+        else if (_rules.DetermineWinner(move1, move2) == "You Win!")
+        {
+            return "Win";
+        }
+        else
+        {
+            return "Lose";
         }
     }
 }
+
