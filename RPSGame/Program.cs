@@ -52,37 +52,36 @@ class Program
             var rules = new GameRules(moves);
             var helpTable = new HelpTable(moves, rules);
 
-            Console.WriteLine("Generated HMAC key: " + BitConverter.ToString(randomKey).Replace("-", ""));
-            Console.WriteLine("Your moves:");
-            for (int i = 0; i < numberOfMoves; i++)
-            {
-                Console.WriteLine($"{i + 1} - {moves[i]}");
-            }
-
-            var table = new Table();
-            table.AddColumn("User Move");
-            table.AddColumn("Computer Move");
-            table.AddColumn("Result");
-            table.AddColumn("HMAC");
-
             while (true)
             {
-                Console.WriteLine("\nSelect your move:");
+                Console.WriteLine("Generated HMAC key Before: " + BitConverter.ToString(randomKey).Replace("-", ""));
+
+                Console.WriteLine("Available moves: ");
                 for (int i = 0; i < numberOfMoves; i++)
                 {
                     Console.WriteLine($"{i + 1} - {moves[i]}");
                 }
+
                 Console.WriteLine("0 - Exit");
+                Console.WriteLine("? - Help");
 
                 int userChoice;
-                while (!int.TryParse(Console.ReadLine(), out userChoice) || userChoice < 0 || userChoice > numberOfMoves)
-                {
-                    Console.WriteLine("Invalid choice. Please select a valid move.");
-                }
+                Console.Write("Enter Your Move: ");
+                string userInput = Console.ReadLine()!;
 
-                if (userChoice == 0)
+                if (userInput == "0")
                 {
                     break;
+                }
+                else if (userInput == "?")
+                {
+                    helpTable.Display();
+                    continue;
+                }
+                else if (!int.TryParse(userInput, out userChoice) || userChoice < 1 || userChoice > numberOfMoves)
+                {
+                    Console.WriteLine("Invalid choice. Please select a valid move.\n");
+                    continue;
                 }
 
                 var userMove = moves[userChoice - 1];
@@ -92,15 +91,9 @@ class Program
                 Console.WriteLine($"Your move: {userMove}");
                 Console.WriteLine($"Computer's move: {computerMove}");
                 Console.WriteLine($"Result: {result}");
-                Console.WriteLine($"HMAC: {moveGenerator.GetHMAC(userMove)}");
+                Console.WriteLine($"HMAC: {moveGenerator.GetHMAC(userMove)}\n");
 
-                table.Rows.Clear();
-
-                table.AddRow(userMove, computerMove, result, moveGenerator.GetHMAC(userMove));
-
-                AnsiConsole.Render(table);
-
-                helpTable.Display();
+                Console.WriteLine("HMAC Key After: " + BitConverter.ToString(randomKey).Replace("-", ""));
             }
         }
     }
