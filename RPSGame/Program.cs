@@ -51,10 +51,11 @@ class Program
             var moveGenerator = new MoveGenerator(moves, hmacKey);
             var rules = new GameRules(moves);
             var helpTable = new HelpTable(moves, rules);
+                
+            Console.WriteLine("HMAC: " + BitConverter.ToString(randomKey).Replace("-", ""));
 
             while (true)
             {
-                Console.WriteLine("Generated HMAC key Before: " + BitConverter.ToString(randomKey).Replace("-", ""));
 
                 Console.WriteLine("Available moves: ");
                 for (int i = 0; i < numberOfMoves; i++)
@@ -71,6 +72,7 @@ class Program
 
                 if (userInput == "0")
                 {
+                    Console.WriteLine($"HMAC key: {moveGenerator.GetHMAC(userInput)}\n");
                     break;
                 }
                 else if (userInput == "?")
@@ -91,9 +93,6 @@ class Program
                 Console.WriteLine($"Your move: {userMove}");
                 Console.WriteLine($"Computer's move: {computerMove}");
                 Console.WriteLine($"Result: {result}");
-                Console.WriteLine($"HMAC: {moveGenerator.GetHMAC(userMove)}\n");
-
-                Console.WriteLine("HMAC Key After: " + BitConverter.ToString(randomKey).Replace("-", ""));
             }
         }
     }
