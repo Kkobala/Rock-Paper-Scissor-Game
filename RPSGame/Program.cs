@@ -1,6 +1,5 @@
 ﻿using RPSGame;
 using System.Security.Cryptography;
-using Spectre.Console;
 
 class Program
 {
@@ -51,7 +50,7 @@ class Program
             var moveGenerator = new MoveGenerator(moves, hmacKey);
             var rules = new GameRules(moves);
             var helpTable = new HelpTable(moves, rules);
-                
+
             Console.WriteLine("HMAC: " + BitConverter.ToString(randomKey).Replace("-", ""));
 
             while (true)
@@ -72,7 +71,6 @@ class Program
 
                 if (userInput == "0")
                 {
-                    Console.WriteLine($"HMAC key: {moveGenerator.GetHMAC(userInput)}\n");
                     break;
                 }
                 else if (userInput == "?")
@@ -93,6 +91,7 @@ class Program
                 Console.WriteLine($"Your move: {userMove}");
                 Console.WriteLine($"Computer's move: {computerMove}");
                 Console.WriteLine($"Result: {result}");
+                Console.WriteLine($"HMAC key: {moveGenerator.GetHMAC(userMove)}\n");
             }
         }
     }
